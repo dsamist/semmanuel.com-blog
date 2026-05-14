@@ -12,18 +12,14 @@ const queue: Record<string, unknown>[] = []
 export async function getRequestContext(): Promise<Fields> {
   try {
     const h = await headers()
-    const ip =
-      h.get("x-nf-client-connection-ip") ??
-      h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      "unknown"
-    const country = h.get("x-country") ?? undefined
-    const geoRaw = h.get("x-nf-geo")
-    const city = geoRaw
-      ? (JSON.parse(geoRaw) as { city?: string }).city ?? undefined
-      : undefined
+    const ip = h.get("x-client-ip") ?? h.get("x-nf-client-connection-ip") ?? h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+    const country = h.get("x-client-country") ?? h.get("x-country") ?? undefined
+    const city = h.get("x-client-city") ?? undefined
+    const pathname = h.get("x-pathname") ?? undefined
     const result: Fields = { ip }
     if (country) result.country = country
     if (city) result.city = city
+    if (pathname) result.pathname = pathname
     return result
   } catch {
     return {}
