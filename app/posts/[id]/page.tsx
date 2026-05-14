@@ -32,37 +32,34 @@ export default async function Post({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
-      <article className="max-w-3xl w-full bg-white shadow-lg rounded-lg p-8">
-        {/* Post Title */}
-        <h1 className="text-5xl font-extrabold text-blue-600 mb-4">
-          {post.title}
-        </h1>
+    <div className="max-w-3xl mx-auto px-6 py-16">
+      <article>
+        <div className="mb-8">
+          <p className="font-mono text-sm text-cyan-400 mb-4">
+            <a href="/posts" className="hover:text-cyan-300 transition-colors">← All Posts</a>
+          </p>
+          <h1 className="text-3xl font-extrabold text-slate-100 leading-tight mb-4">
+            {post.title}
+          </h1>
+          <div className="flex items-center gap-3 text-sm text-slate-500">
+            <span>by <span className="text-slate-300 font-medium">{post.author?.name || "Samuel Emmanuel"}</span></span>
+            <span>·</span>
+            <span>{new Date(post.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
+          </div>
+        </div>
 
-        {/* Author Information */}
-        <p className="text-lg text-gray-600 mb-4">
-          by <span className="font-medium text-gray-800">{post.author?.name || "Anonymous"}</span>
-        </p>
-
-        {/* Content Section */}
-        <div className="text-lg text-gray-800 leading-relaxed space-y-6 border-t pt-6">
+        <div className="border-t border-slate-800 pt-8 text-slate-300 text-base leading-relaxed space-y-5">
           {post.content ? (
             <p>{post.content}</p>
           ) : (
-            <p className="italic text-gray-500">No content available for this post.</p>
+            <p className="italic text-slate-500">No content available for this post.</p>
           )}
         </div>
       </article>
 
-      {/* Delete Button
-      <form action={deletePost} className="mt-6">
-        <button
-          type="submit"
-          className="px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors"
-        >
-          Delete Post
-        </button>
-      </form> */}
+      <div className="mt-12 pt-8 border-t border-slate-800">
+        <a href="/posts" className="text-sm text-slate-400 hover:text-cyan-400 transition-colors">← Back to all posts</a>
+      </div>
     </div>
   );
 }

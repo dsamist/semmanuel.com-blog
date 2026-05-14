@@ -24,28 +24,47 @@ export default async function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center -mt-16 p-8">
-      <h1 className="text-5xl font-extrabold mb-12 text-[#333333]">Recent Posts</h1>
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 w-full max-w-6xl">
-        {posts.map((post) => (
-          <Link key={post.id} href={`/posts/${post.id}`} className="group">
-            <div className="border rounded-lg shadow-md bg-white p-6 hover:shadow-lg transition-shadow duration-300">
-              <h2 className="text-2xl font-semibold text-blue-600 group-hover:underline mb-2">{post.title}</h2>
-              <p className="text-sm text-gray-500">by {post.author ? post.author.name : "Anonymous"}</p>
-              <p className="text-xs text-gray-400 mb-4">
-                {new Date(post.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-              <div className="relative">
-                <p className="text-gray-700 leading-relaxed line-clamp-2">{post.content || "No content available."}</p>
-                <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-gray-50 to-transparent" />
+    <div className="max-w-5xl mx-auto px-6 py-16">
+      {/* Hero */}
+      <div className="mb-14">
+        <p className="font-mono text-sm text-cyan-400 mb-3">// latest posts</p>
+        <h1 className="text-4xl font-extrabold text-slate-100 mb-4">Cloud &amp; DevOps Insights</h1>
+        <p className="text-slate-400 max-w-xl">
+          Practical notes on platform engineering, Kubernetes, AWS, Terraform, and the realities of managing infrastructure at scale.
+        </p>
+      </div>
+
+      {/* Posts grid */}
+      {posts.length === 0 ? (
+        <p className="text-slate-500 italic">No posts yet — check back soon.</p>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post) => (
+            <Link key={post.id} href={`/posts/${post.id}`} className="group">
+              <div className="h-full bg-slate-800 border border-slate-700 rounded-xl p-6 hover:border-cyan-500/40 hover:-translate-y-1 transition-all duration-200">
+                <h2 className="text-lg font-semibold text-slate-100 group-hover:text-cyan-400 transition-colors mb-3 leading-snug">
+                  {post.title}
+                </h2>
+                <p className="text-slate-500 text-xs mb-3">
+                  {new Date(post.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                  {post.author && <span className="ml-2">· {post.author.name}</span>}
+                </p>
+                <p className="text-slate-400 text-sm leading-relaxed line-clamp-3">
+                  {post.content || "No content available."}
+                </p>
+                <p className="mt-4 text-xs font-mono text-cyan-500 group-hover:text-cyan-300 transition-colors">
+                  Read more →
+                </p>
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-10 text-center">
+        <Link href="/posts" className="text-sm text-slate-400 hover:text-cyan-400 transition-colors border border-slate-700 hover:border-cyan-500/40 px-5 py-2 rounded-lg">
+          View all posts →
+        </Link>
       </div>
     </div>
   );

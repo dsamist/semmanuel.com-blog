@@ -3,8 +3,8 @@ import "./globals.css";
 import Header from "./Header";
 
 export const metadata = {
-  title: "TechOps",
-  description: "A blog app using Next.js and Prisma",
+  title: "Samuel Emmanuel | Cloud & DevOps Blog",
+  description: "Cloud & DevOps insights from Samuel Ene-ojo Emmanuel — a Cloud Platform Engineer at ARHS Group (Accenture), Luxembourg. Writing about AWS, Kubernetes, Terraform, and platform engineering.",
 };
 
 export default function RootLayout({

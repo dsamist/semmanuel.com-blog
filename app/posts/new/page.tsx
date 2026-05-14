@@ -37,47 +37,51 @@ export default function NewPost() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
+    <div className="max-w-2xl mx-auto px-6 py-16">
+      <div className="mb-10">
+        <p className="font-mono text-sm text-cyan-400 mb-3">// new post</p>
+        <h1 className="text-3xl font-extrabold text-slate-100">Write a Post</h1>
+      </div>
       <Form action={createPost} className="space-y-6">
         <div>
-          <label htmlFor="title" className="flex text-lg font-medium mb-2 items-center">
-            Title 
-            <span className="ml-2 px-2 py-1 text-xs font-semibold text-white bg-gray-500 rounded-lg">
-              Required
-            </span>
+          <label htmlFor="title" className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-2">
+            Title
+            <span className="px-2 py-0.5 text-xs font-mono bg-slate-700 text-slate-400 rounded">required</span>
           </label>
           <input
             type="text"
             id="title"
             name="title"
             required
-            placeholder="Enter your post title ..."
-            className="w-full px-4 py-2 border rounded-lg"
+            placeholder="Post title..."
+            className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-colors"
           />
         </div>
         <div>
-          <label htmlFor="content" className="block text-lg font-medium mb-2">Content</label>
+          <label htmlFor="content" className="block text-sm font-medium text-slate-300 mb-2">Content</label>
           <textarea
             id="content"
             name="content"
-            placeholder="Write your post content here ..."
-            rows={6}
-            className="w-full px-4 py-2 border rounded-lg"
+            placeholder="Write your post content here..."
+            rows={10}
+            className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-colors resize-y"
           />
         </div>
         <div>
-          <label htmlFor="authorEmail" className="block text-lg font-medium mb-2">Author</label>
+          <label htmlFor="authorEmail" className="block text-sm font-medium text-slate-300 mb-2">Author Email</label>
           <input
             type="text"
             id="authorEmail"
             name="authorEmail"
-            placeholder="Enter the email of the author here ..."
-            className="w-full px-4 py-2 border rounded-lg"
+            placeholder="author@email.com"
+            className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-colors"
           />
         </div>
-        <button type="submit" className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600">
-          Create Post
+        <button
+          type="submit"
+          className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-semibold rounded-lg transition-colors"
+        >
+          Publish Post
         </button>
       </Form>
     </div>
