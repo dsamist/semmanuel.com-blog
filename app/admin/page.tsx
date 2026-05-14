@@ -40,9 +40,9 @@ export default async function AdminPage() {
   }
 
   const pendingPosts = await prisma.post.findMany({
-    where: { published: false },
+    where: { published: false, rejectionReason: null },
     orderBy: { createdAt: "desc" },
-    include: { author: { select: { name: true } } },
+    include: { author: { select: { name: true, email: true } } },
   });
 
   return (
@@ -95,23 +95,44 @@ export default async function AdminPage() {
                   {post.content}
                 </p>
               )}
-              <div className="flex gap-3">
-                <form action={approvePost.bind(null, post.id)}>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-sm bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-semibold rounded-lg transition-colors"
-                  >
-                    Approve & Publish
-                  </button>
-                </form>
-                <form action={rejectPost.bind(null, post.id)}>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-sm border border-red-500/40 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                  >
-                    Reject
-                  </button>
-                </form>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-3">
+                  <form action={approvePost.bind(null, post.id)}>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 text-sm bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-semibold rounded-lg transition-colors"
+                    >
+                      Approve & Publish
+                    </button>
+                  </form>
+                </div>
+                <details className="group">
+                  <summary className="cursor-pointer list-none">
+                    <span className="inline-block px-4 py-2 text-sm border border-red-500/40 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                      Reject ↓
+                    </span>
+                  </summary>
+                  <form action={rejectPost.bind(null, post.id)} className="mt-3 space-y-3">
+                    {post.author?.email && !post.author.email.endsWith("@blog-submission.internal") && (
+                      <p className="text-xs text-slate-500">
+                        A rejection email will be sent to <span className="text-slate-300">{post.author.email}</span>
+                      </p>
+                    )}
+                    <textarea
+                      name="reason"
+                      required
+                      rows={3}
+                      placeholder="Explain what needs to be changed..."
+                      className="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-600 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-red-500/50 resize-y"
+                    />
+                    <button
+                      type="submit"
+                      className="px-4 py-2 text-sm bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 font-medium rounded-lg transition-colors"
+                    >
+                      Send Rejection
+                    </button>
+                  </form>
+                </details>
               </div>
             </div>
           ))}
