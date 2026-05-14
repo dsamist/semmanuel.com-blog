@@ -3,6 +3,8 @@ export const dynamic = "force-dynamic"; // This disables SSG and ISR
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { logger, formatError, getRequestContext } from "@/lib/logger";
 
 export default async function Post({ params }: { params: Promise<{ id: string }> }) {
@@ -56,9 +58,29 @@ export default async function Post({ params }: { params: Promise<{ id: string }>
           </div>
         </div>
 
-        <div className="border-t border-slate-800 pt-8 text-slate-300 text-base leading-relaxed space-y-5">
+        <div className="border-t border-slate-800 pt-8 text-slate-300 text-base leading-relaxed">
           {post.content ? (
-            <p>{post.content}</p>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                p: ({ children }) => <p className="mb-5">{children}</p>,
+                h1: ({ children }) => <h1 className="text-2xl font-bold text-slate-100 mt-10 mb-4">{children}</h1>,
+                h2: ({ children }) => <h2 className="text-xl font-bold text-slate-100 mt-8 mb-3">{children}</h2>,
+                h3: ({ children }) => <h3 className="text-lg font-semibold text-slate-100 mt-6 mb-2">{children}</h3>,
+                ul: ({ children }) => <ul className="list-disc list-outside pl-6 mb-5 space-y-1.5">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal list-outside pl-6 mb-5 space-y-1.5">{children}</ol>,
+                li: ({ children }) => <li className="text-slate-300">{children}</li>,
+                strong: ({ children }) => <strong className="font-semibold text-slate-100">{children}</strong>,
+                em: ({ children }) => <em className="italic text-slate-400">{children}</em>,
+                blockquote: ({ children }) => <blockquote className="border-l-4 border-cyan-500/50 pl-4 my-5 text-slate-400 italic">{children}</blockquote>,
+                code: ({ children }) => <code className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-cyan-300 text-sm font-mono">{children}</code>,
+                pre: ({ children }) => <pre className="bg-slate-900 border border-slate-700 rounded-lg p-4 overflow-x-auto mb-5 text-sm">{children}</pre>,
+                a: ({ href, children }) => <a href={href} className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2" target="_blank" rel="noopener noreferrer">{children}</a>,
+                hr: () => <hr className="border-slate-700 my-8" />,
+              }}
+            >
+              {post.content}
+            </ReactMarkdown>
           ) : (
             <p className="italic text-slate-500">No content available for this post.</p>
           )}
