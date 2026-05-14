@@ -31,7 +31,7 @@ async function flush(): Promise<void> {
   if (!AXIOM_TOKEN || queue.length === 0) return
   const events = queue.splice(0)
   try {
-    await fetch(`${AXIOM_URL}/v1/datasets/${AXIOM_DATASET}/ingest`, {
+    await fetch(`${AXIOM_URL}/v1/ingest/${AXIOM_DATASET}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${AXIOM_TOKEN}`,
