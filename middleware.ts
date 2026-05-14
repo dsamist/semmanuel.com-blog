@@ -10,15 +10,19 @@ export function middleware(request: NextRequest) {
   const ip =
     request.headers.get("x-nf-client-connection-ip") ??
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    request.ip ??
     "unknown";
   requestHeaders.set("x-client-ip", ip);
 
-  const country = request.headers.get("x-country") ?? request.geo?.country ?? "";
+  const country = request.headers.get("x-country") ?? "";
   if (country) requestHeaders.set("x-client-country", country);
 
-  const city = request.geo?.city ?? "";
-  if (city) requestHeaders.set("x-client-city", city);
+  const geoRaw = request.headers.get("x-nf-geo");
+  if (geoRaw) {
+    try {
+      const geo = JSON.parse(geoRaw) as { city?: string; subdivision?: { code?: string } };
+      if (geo.city) requestHeaders.set("x-client-city", geo.city);
+    } catch { /* ignore malformed geo header */ }
+  }
 
   return NextResponse.next({ request: { headers: requestHeaders } });
 }
