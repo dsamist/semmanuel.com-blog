@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default async function NotFound() {
   const ctx = await getRequestContext();
-  logger.warn("page.not_found", { path: ctx.pathname ?? "unknown", ...ctx });
+  logger.warn("page.not_found", { ...ctx });
   await logger.flush();
 
   return (
