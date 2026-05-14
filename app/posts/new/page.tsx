@@ -23,7 +23,10 @@ export default function NewPost() {
         content,
         published: false,
         author: {
-          create: { email: authorEmail, name: authorName },
+          connectOrCreate: {
+            where: { email: authorEmail },
+            create: { email: authorEmail, name: authorName },
+          },
         },
       },
     });
