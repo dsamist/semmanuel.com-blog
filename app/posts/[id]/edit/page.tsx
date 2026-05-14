@@ -44,7 +44,7 @@ export default async function EditPost({ params }: { params: Promise<{ id: strin
 
       {post.rejectionReason && (
         <div className="mb-8 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5">
-          <p className="text-xs font-mono text-amber-400 mb-1">// feedback</p>
+          <p className="text-xs font-mono text-amber-400 mb-1">{'// feedback'}</p>
           <p className="text-sm text-amber-200 leading-relaxed">{post.rejectionReason}</p>
         </div>
       )}
