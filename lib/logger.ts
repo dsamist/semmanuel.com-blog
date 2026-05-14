@@ -2,7 +2,10 @@ import { Axiom } from "@axiomhq/js";
 
 const axiom =
   process.env.AXIOM_TOKEN
-    ? new Axiom({ token: process.env.AXIOM_TOKEN })
+    ? new Axiom({
+        token: process.env.AXIOM_TOKEN,
+        url: process.env.AXIOM_URL ?? "https://eu-central-1.aws.edge.axiom.co",
+      })
     : null;
 
 const DATASET = process.env.AXIOM_DATASET ?? "blog-logs";
