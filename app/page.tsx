@@ -59,6 +59,21 @@ export default async function Home() {
           View all posts →
         </Link>
       </div>
+
+      {/* Submit CTA */}
+      <div className="mt-20 rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-8 py-10 text-center">
+        <p className="font-mono text-xs text-cyan-400 mb-3">{'// contribute'}</p>
+        <h2 className="text-2xl font-bold text-slate-100 mb-3">Have something to share?</h2>
+        <p className="text-slate-400 max-w-md mx-auto mb-6 text-sm leading-relaxed">
+          No account needed. Submit a post on cloud, DevOps, or platform engineering — I&apos;ll review it and publish it if it&apos;s a good fit.
+        </p>
+        <Link
+          href="/posts/new"
+          className="inline-block px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-semibold text-sm rounded-lg transition-colors"
+        >
+          Write a Post →
+        </Link>
+      </div>
     </div>
   );
 }

@@ -12,11 +12,10 @@ export default function NewPost() {
     const title = formData.get("title") as string;
     const content = formData.get("content") as string;
     const authorName = (formData.get("authorName") as string)?.trim() || "Anonymous";
+    const authorEmail = (formData.get("authorEmail") as string)?.trim() ||
+      `submission_${Date.now()}@blog-submission.internal`;
 
     if (!title?.trim()) return;
-
-    // Generate a unique placeholder email so the author name is visible in the admin panel
-    const placeholderEmail = `submission_${Date.now()}@blog-submission.internal`;
 
     await prisma.post.create({
       data: {
@@ -24,7 +23,7 @@ export default function NewPost() {
         content,
         published: false,
         author: {
-          create: { email: placeholderEmail, name: authorName },
+          create: { email: authorEmail, name: authorName },
         },
       },
     });
@@ -52,6 +51,18 @@ export default function NewPost() {
             id="authorName"
             name="authorName"
             placeholder="e.g. Jane Doe"
+            className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-colors"
+          />
+        </div>
+        <div>
+          <label htmlFor="authorEmail" className="block text-sm font-medium text-slate-300 mb-2">
+            Your Email <span className="text-slate-500 font-normal">(optional — so I can reach you if corrections are needed)</span>
+          </label>
+          <input
+            type="email"
+            id="authorEmail"
+            name="authorEmail"
+            placeholder="e.g. you@example.com"
             className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-colors"
           />
         </div>
