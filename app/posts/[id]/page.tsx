@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic"; // This disables SSG and ISR
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { logger, formatError } from "@/lib/logger";
+import { logger, formatError, getRequestContext } from "@/lib/logger";
 
 export default async function Post({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,11 +28,14 @@ export default async function Post({ params }: { params: Promise<{ id: string }>
     notFound();
   }
 
+  const ctx = await getRequestContext();
   logger.info("post.viewed", {
+    path: `/posts/${postId}`,
     postId,
     title: post!.title,
     author: post!.author?.name,
     durationMs: Date.now() - start,
+    ...ctx,
   });
   await logger.flush();
 

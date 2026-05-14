@@ -1,10 +1,11 @@
 export const dynamic = "force-dynamic";
 
-import { logger } from "@/lib/logger";
+import { logger, getRequestContext } from "@/lib/logger";
 import Link from "next/link";
 
 export default async function NotFound() {
-  logger.warn("page.not_found");
+  const ctx = await getRequestContext();
+  logger.warn("page.not_found", { ...ctx });
   await logger.flush();
 
   return (

@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import Form from "next/form";
-import { logger, formatError } from "@/lib/logger";
+import { logger, formatError, getRequestContext } from "@/lib/logger";
 
 export default async function EditPost({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,10 +21,13 @@ export default async function EditPost({ params }: { params: Promise<{ id: strin
     notFound();
   }
 
+  const ctx = await getRequestContext();
   logger.info("post.edit.opened", {
+    path: `/posts/${postId}/edit`,
     postId,
     title: post.title,
     wasRejected: !!post.rejectionReason,
+    ...ctx,
   });
   await logger.flush();
 

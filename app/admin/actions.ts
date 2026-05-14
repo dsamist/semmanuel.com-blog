@@ -4,12 +4,13 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { BrevoClient } from "@getbrevo/brevo";
-import { logger, formatError } from "@/lib/logger";
+import { logger, formatError, getRequestContext } from "@/lib/logger";
 
 export async function login(formData: FormData) {
   const key = formData.get("key") as string;
   const success = !!(key && key === process.env.ADMIN_KEY);
 
+  const ctx = await getRequestContext();
   if (success) {
     const cookieStore = await cookies();
     cookieStore.set("admin_auth", key, {
@@ -18,9 +19,9 @@ export async function login(formData: FormData) {
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
     });
-    logger.info("admin.login.success");
+    logger.info("admin.login.success", { ...ctx });
   } else {
-    logger.warn("admin.login.failed", { reason: "wrong_key" });
+    logger.warn("admin.login.failed", { reason: "wrong_key", ...ctx });
   }
 
   await logger.flush();
@@ -37,11 +38,12 @@ export async function logout() {
 
 export async function approvePost(postId: number) {
   const start = Date.now();
+  let post;
   try {
-    const post = await prisma.post.update({
+    post = await prisma.post.update({
       where: { id: postId },
       data: { published: true, rejectionReason: null },
-      select: { title: true },
+      select: { title: true, author: { select: { email: true, name: true } } },
     });
     logger.info("post.approved", {
       postId,
@@ -57,6 +59,41 @@ export async function approvePost(postId: number) {
     await logger.flush();
     throw err;
   }
+
+  const submitterEmail = post.author?.email;
+  const isPlaceholder = submitterEmail?.endsWith("@blog-submission.internal");
+
+  if (submitterEmail && !isPlaceholder && process.env.BREVO_API_KEY) {
+    try {
+      const brevo = new BrevoClient({ apiKey: process.env.BREVO_API_KEY });
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.semmanuel.com";
+      const postUrl = `${siteUrl}/posts/${postId}`;
+      const authorName = post.author?.name || "there";
+
+      await brevo.transactionalEmails.sendTransacEmail({
+        subject: `Your post "${post.title}" has been published!`,
+        sender: {
+          name: "semmanuel.com blog",
+          email: process.env.BREVO_SENDER_EMAIL || "noreply@semmanuel.com",
+        },
+        to: [{ email: submitterEmail, name: authorName }],
+        htmlContent: `
+          <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
+            <h2 style="color:#0891b2">Hi ${authorName},</h2>
+            <p>Great news — your post <strong>"${post.title}"</strong> has been reviewed and is now live on the blog!</p>
+            <p>You can view it here:</p>
+            <a href="${postUrl}" style="display:inline-block;background:#0891b2;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600">Read your post →</a>
+            <p style="margin-top:24px;color:#64748b;font-size:13px">Thanks for contributing. Feel free to submit more posts anytime.</p>
+          </div>
+        `,
+      });
+
+      logger.info("email.approval.sent", { postId, to: submitterEmail });
+    } catch (err) {
+      logger.error("email.approval.failed", { postId, to: submitterEmail, ...formatError(err) });
+    }
+  }
+
   await logger.flush();
   redirect("/admin");
 }

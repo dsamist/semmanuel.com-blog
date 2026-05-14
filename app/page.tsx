@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic"; // This disables SSG and ISR
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { logger } from "@/lib/logger";
+import { logger, getRequestContext } from "@/lib/logger";
 
 export default async function Home() {
   if (!process.env.DATABASE_URL || process.env.DATABASE_URL === "prisma+postgres://accelerate.prisma-data.net/?api_key=API_KEY") {
@@ -17,7 +17,8 @@ export default async function Home() {
     include: { author: { select: { name: true } } },
   });
 
-  logger.info("page.home.viewed", { postCount: posts.length });
+  const ctx = await getRequestContext();
+  logger.info("page.home.viewed", { path: "/", postCount: posts.length, ...ctx });
   await logger.flush();
 
   return (

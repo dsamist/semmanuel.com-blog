@@ -1,3 +1,5 @@
+import { headers } from "next/headers"
+
 const AXIOM_TOKEN = process.env.AXIOM_TOKEN
 const AXIOM_DATASET = process.env.AXIOM_DATASET ?? "semmanuel-blog-dataset"
 const AXIOM_URL = process.env.AXIOM_URL ?? "https://eu-central-1.aws.edge.axiom.co"
@@ -6,6 +8,27 @@ type Level = "info" | "warn" | "error"
 type Fields = Record<string, unknown>
 
 const queue: Record<string, unknown>[] = []
+
+export async function getRequestContext(): Promise<Fields> {
+  try {
+    const h = await headers()
+    const ip =
+      h.get("x-nf-client-connection-ip") ??
+      h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      "unknown"
+    const country = h.get("x-country") ?? undefined
+    const geoRaw = h.get("x-nf-geo")
+    const city = geoRaw
+      ? (JSON.parse(geoRaw) as { city?: string }).city ?? undefined
+      : undefined
+    const result: Fields = { ip }
+    if (country) result.country = country
+    if (city) result.city = city
+    return result
+  } catch {
+    return {}
+  }
+}
 
 export function formatError(err: unknown): Fields {
   if (err instanceof Error) {
