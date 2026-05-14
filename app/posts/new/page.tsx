@@ -4,6 +4,7 @@ import Form from "next/form";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { logger, formatError } from "@/lib/logger";
 
 export default function NewPost() {
   async function createPost(formData: FormData) {
@@ -17,21 +18,42 @@ export default function NewPost() {
 
     if (!title?.trim()) return;
 
-    await prisma.post.create({
-      data: {
-        title,
-        content,
-        published: false,
-        author: {
-          connectOrCreate: {
-            where: { email: authorEmail },
-            create: { email: authorEmail, name: authorName },
+    const start = Date.now();
+    try {
+      const post = await prisma.post.create({
+        data: {
+          title,
+          content,
+          published: false,
+          author: {
+            connectOrCreate: {
+              where: { email: authorEmail },
+              create: { email: authorEmail, name: authorName },
+            },
           },
         },
-      },
-    });
+        select: { id: true },
+      });
+      logger.info("post.submitted", {
+        postId: post.id,
+        title,
+        authorName,
+        hasEmail: !authorEmail.endsWith("@blog-submission.internal"),
+        contentLength: content?.length ?? 0,
+        durationMs: Date.now() - start,
+      });
+    } catch (err) {
+      logger.error("post.submit.error", {
+        title,
+        ...formatError(err),
+        durationMs: Date.now() - start,
+      });
+      await logger.flush();
+      throw err;
+    }
 
     revalidatePath("/posts");
+    await logger.flush();
     redirect("/posts/submitted");
   }
 

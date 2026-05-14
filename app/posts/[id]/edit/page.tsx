@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import Form from "next/form";
+import { logger, formatError } from "@/lib/logger";
 
 export default async function EditPost({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,7 +15,18 @@ export default async function EditPost({ params }: { params: Promise<{ id: strin
     select: { id: true, title: true, content: true, rejectionReason: true, published: true },
   });
 
-  if (!post || post.published) notFound();
+  if (!post || post.published) {
+    logger.warn("post.edit.not_found", { postId });
+    await logger.flush();
+    notFound();
+  }
+
+  logger.info("post.edit.opened", {
+    postId,
+    title: post.title,
+    wasRejected: !!post.rejectionReason,
+  });
+  await logger.flush();
 
   async function updatePost(formData: FormData) {
     "use server";
@@ -23,12 +35,30 @@ export default async function EditPost({ params }: { params: Promise<{ id: strin
 
     if (!title?.trim()) return;
 
-    await prisma.post.update({
-      where: { id: postId },
-      data: { title, content, rejectionReason: null },
-    });
+    const start = Date.now();
+    try {
+      await prisma.post.update({
+        where: { id: postId },
+        data: { title, content, rejectionReason: null },
+      });
+      logger.info("post.resubmitted", {
+        postId,
+        title,
+        contentLength: content?.length ?? 0,
+        durationMs: Date.now() - start,
+      });
+    } catch (err) {
+      logger.error("post.resubmit.error", {
+        postId,
+        ...formatError(err),
+        durationMs: Date.now() - start,
+      });
+      await logger.flush();
+      throw err;
+    }
 
     revalidatePath("/posts");
+    await logger.flush();
     redirect("/posts/submitted");
   }
 

@@ -3,21 +3,38 @@ export const dynamic = "force-dynamic"; // This disables SSG and ISR
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { logger, formatError } from "@/lib/logger";
 
 export default async function Post({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const postId = parseInt(id);
 
-  const post = await prisma.post.findUnique({
-    where: { id: postId },
-    include: {
-      author: true,
-    },
-  });
+  let post;
+  const start = Date.now();
+  try {
+    post = await prisma.post.findUnique({
+      where: { id: postId, published: true },
+      include: { author: true },
+    });
+  } catch (err) {
+    logger.error("post.view.db_error", { postId, ...formatError(err), durationMs: Date.now() - start });
+    await logger.flush();
+    throw err;
+  }
 
   if (!post) {
+    logger.warn("post.view.not_found", { postId });
+    await logger.flush();
     notFound();
   }
+
+  logger.info("post.viewed", {
+    postId,
+    title: post!.title,
+    author: post!.author?.name,
+    durationMs: Date.now() - start,
+  });
+  await logger.flush();
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">

@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { login, logout, approvePost, rejectPost } from "./actions";
+import { logger } from "@/lib/logger";
 
 export default async function AdminPage() {
   const cookieStore = await cookies();
@@ -44,6 +45,9 @@ export default async function AdminPage() {
     orderBy: { createdAt: "desc" },
     include: { author: { select: { name: true, email: true } } },
   });
+
+  logger.info("admin.panel.viewed", { pendingCount: pendingPosts.length });
+  await logger.flush();
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">

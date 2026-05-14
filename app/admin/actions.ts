@@ -4,10 +4,13 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { BrevoClient } from "@getbrevo/brevo";
+import { logger, formatError } from "@/lib/logger";
 
 export async function login(formData: FormData) {
   const key = formData.get("key") as string;
-  if (key && key === process.env.ADMIN_KEY) {
+  const success = !!(key && key === process.env.ADMIN_KEY);
+
+  if (success) {
     const cookieStore = await cookies();
     cookieStore.set("admin_auth", key, {
       httpOnly: true,
@@ -15,25 +18,51 @@ export async function login(formData: FormData) {
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
     });
+    logger.info("admin.login.success");
+  } else {
+    logger.warn("admin.login.failed", { reason: "wrong_key" });
   }
+
+  await logger.flush();
   redirect("/admin");
 }
 
 export async function logout() {
   const cookieStore = await cookies();
   cookieStore.delete("admin_auth");
+  logger.info("admin.logout");
+  await logger.flush();
   redirect("/admin");
 }
 
 export async function approvePost(postId: number) {
-  await prisma.post.update({
-    where: { id: postId },
-    data: { published: true, rejectionReason: null },
-  });
+  const start = Date.now();
+  try {
+    const post = await prisma.post.update({
+      where: { id: postId },
+      data: { published: true, rejectionReason: null },
+      select: { title: true },
+    });
+    logger.info("post.approved", {
+      postId,
+      title: post.title,
+      durationMs: Date.now() - start,
+    });
+  } catch (err) {
+    logger.error("post.approve.error", {
+      postId,
+      ...formatError(err),
+      durationMs: Date.now() - start,
+    });
+    await logger.flush();
+    throw err;
+  }
+  await logger.flush();
   redirect("/admin");
 }
 
 export async function rejectPost(postId: number, formData: FormData) {
+  const start = Date.now();
   const reason = (formData.get("reason") as string)?.trim() || "No reason provided.";
 
   const post = await prisma.post.findUnique({
@@ -41,20 +70,34 @@ export async function rejectPost(postId: number, formData: FormData) {
     include: { author: { select: { email: true, name: true } } },
   });
 
-  if (!post) redirect("/admin");
+  if (!post) {
+    logger.warn("post.reject.not_found", { postId });
+    await logger.flush();
+    redirect("/admin");
+  }
 
-  await prisma.post.update({
-    where: { id: postId },
-    data: { rejectionReason: reason },
-  });
+  try {
+    await prisma.post.update({
+      where: { id: postId },
+      data: { rejectionReason: reason },
+    });
+  } catch (err) {
+    logger.error("post.reject.db_error", {
+      postId,
+      ...formatError(err),
+      durationMs: Date.now() - start,
+    });
+    await logger.flush();
+    throw err;
+  }
 
   const submitterEmail = post!.author?.email;
   const isPlaceholder = submitterEmail?.endsWith("@blog-submission.internal");
+  let emailSent = false;
 
   if (submitterEmail && !isPlaceholder && process.env.BREVO_API_KEY) {
     try {
       const brevo = new BrevoClient({ apiKey: process.env.BREVO_API_KEY });
-
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.semmanuel.com";
       const editUrl = `${siteUrl}/posts/${postId}/edit`;
       const authorName = post!.author?.name || "there";
@@ -79,10 +122,22 @@ export async function rejectPost(postId: number, formData: FormData) {
           </div>
         `,
       });
+
+      emailSent = true;
+      logger.info("email.rejection.sent", { postId, to: submitterEmail });
     } catch (err) {
-      console.error("Failed to send rejection email:", err);
+      logger.error("email.rejection.failed", { postId, to: submitterEmail, ...formatError(err) });
     }
   }
 
+  logger.info("post.rejected", {
+    postId,
+    title: post!.title,
+    emailSent,
+    hasSubmitterEmail: !isPlaceholder,
+    durationMs: Date.now() - start,
+  });
+
+  await logger.flush();
   redirect("/admin");
 }

@@ -38,6 +38,18 @@ function PostsList() {
         setTotalPages(data.totalPages);
       } catch (error) {
         console.error("Error fetching posts:", error);
+        fetch("/api/log", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            level: "error",
+            event: "posts.list.fetch_error",
+            fields: {
+              page,
+              message: error instanceof Error ? error.message : String(error),
+            },
+          }),
+        }).catch(() => {});
       } finally {
         setIsLoading(false);
       }
