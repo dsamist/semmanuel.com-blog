@@ -27,7 +27,7 @@ export default async function Home() {
     <div className="max-w-5xl mx-auto px-6 py-16">
       {/* Hero */}
       <div className="mb-14">
-        <p className="font-mono text-sm text-cyan-400 mb-3">// latest posts</p>
+        <p className="font-mono text-sm text-cyan-400 mb-3">{'// latest posts'}</p>
         <h1 className="text-4xl font-extrabold text-slate-100 mb-4">Cloud &amp; DevOps Insights</h1>
         <p className="text-slate-400 max-w-xl">
           Practical notes on platform engineering, Kubernetes, AWS, Terraform, and the realities of managing infrastructure at scale.

@@ -1,7 +1,8 @@
 export const dynamic = "force-dynamic"; // This disables SSG and ISR
 
 import prisma from "@/lib/prisma";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import Link from "next/link";
 
 export default async function Post({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,25 +19,12 @@ export default async function Post({ params }: { params: Promise<{ id: string }>
     notFound();
   }
 
-  // Server action to delete the post
-  async function deletePost() {
-    "use server";
-
-    await prisma.post.delete({
-      where: {
-        id: postId,
-      },
-    });
-
-    redirect("/posts");
-  }
-
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
       <article>
         <div className="mb-8">
           <p className="font-mono text-sm text-cyan-400 mb-4">
-            <a href="/posts" className="hover:text-cyan-300 transition-colors">← All Posts</a>
+            <Link href="/posts" className="hover:text-cyan-300 transition-colors">← All Posts</Link>
           </p>
           <h1 className="text-3xl font-extrabold text-slate-100 leading-tight mb-4">
             {post.title}
@@ -58,7 +46,7 @@ export default async function Post({ params }: { params: Promise<{ id: string }>
       </article>
 
       <div className="mt-12 pt-8 border-t border-slate-800">
-        <a href="/posts" className="text-sm text-slate-400 hover:text-cyan-400 transition-colors">← Back to all posts</a>
+        <Link href="/posts" className="text-sm text-slate-400 hover:text-cyan-400 transition-colors">← Back to all posts</Link>
       </div>
     </div>
   );

@@ -39,7 +39,7 @@ export default function NewPost() {
   return (
     <div className="max-w-2xl mx-auto px-6 py-16">
       <div className="mb-10">
-        <p className="font-mono text-sm text-cyan-400 mb-3">// new post</p>
+        <p className="font-mono text-sm text-cyan-400 mb-3">{'// new post'}</p>
         <h1 className="text-3xl font-extrabold text-slate-100">Write a Post</h1>
       </div>
       <Form action={createPost} className="space-y-6">
