@@ -10,17 +10,10 @@ export default async function Home() {
   }
 
   const posts = await prisma.post.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+    where: { published: true },
+    orderBy: { createdAt: "desc" },
     take: 6,
-    include: {
-      author: {
-        select: {
-          name: true,
-        },
-      },
-    },
+    include: { author: { select: { name: true } } },
   });
 
   return (

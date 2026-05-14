@@ -11,11 +11,12 @@ export async function GET(request: Request) {
   const posts = await prisma.post.findMany({
     skip: offset,
     take: postsPerPage,
+    where: { published: true },
     orderBy: { createdAt: "desc" },
     include: { author: { select: { name: true } } },
   });
 
-  const totalPosts = await prisma.post.count();
+  const totalPosts = await prisma.post.count({ where: { published: true } });
   const totalPages = Math.ceil(totalPosts / postsPerPage);
 
   return NextResponse.json({ posts, totalPages });
