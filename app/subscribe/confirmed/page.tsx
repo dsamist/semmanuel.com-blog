@@ -5,9 +5,9 @@ export default function SubscribeConfirmed() {
     <div className="min-h-[70vh] flex items-center justify-center px-6">
       <div className="text-center max-w-md">
         <p className="font-mono text-sm text-cyan-400 mb-3">{"// subscribed"}</p>
-        <h1 className="text-2xl font-bold text-slate-100 mb-3">You're in!</h1>
+        <h1 className="text-2xl font-bold text-slate-100 mb-3">You&apos;re in!</h1>
         <p className="text-slate-400 mb-8 text-sm leading-relaxed">
-          Your subscription is confirmed. You'll get an email whenever a new post is published.
+          Your subscription is confirmed. You&apos;ll get an email whenever a new post is published.
         </p>
         <Link
           href="/"
