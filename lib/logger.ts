@@ -9,7 +9,7 @@ type Fields = Record<string, unknown>
 
 const queue: Record<string, unknown>[] = []
 
-const MONITORING_BOTS = ["uptimerobot", "pingdom", "statuscake", "site24x7", "freshping", "hetrixtools", "googlebot", "bingbot"]
+const MONITORING_BOTS = ["uptimerobot", "pingdom", "statuscake", "site24x7", "freshping", "hetrixtools", "googlebot", "bingbot", "headlesschrome", "node"]
 
 export function isMonitoringBot(userAgent: string): boolean {
   const ua = userAgent.toLowerCase()
@@ -22,8 +22,9 @@ export async function getRequestContext(): Promise<Fields> {
     const ip = h.get("x-client-ip") ?? h.get("x-nf-client-connection-ip") ?? h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
     const country = h.get("x-client-country") ?? h.get("x-country") ?? undefined
     const city = h.get("x-client-city") ?? undefined
-    // x-invoke-path is set by Next.js with the actual failing path in not-found context
-    const pathname = h.get("x-invoke-path") ?? h.get("x-pathname") ?? undefined
+    // x-pathname is stamped by middleware; x-invoke-path is set by Next.js in not-found context
+    // Use || so an empty string from either header falls through to the next candidate
+    const pathname = h.get("x-invoke-path") || h.get("x-pathname") || undefined
     const userAgent = h.get("user-agent") ?? undefined
     const result: Fields = { ip }
     if (country) result.country = country
@@ -58,6 +59,7 @@ function log(level: Level, event: string, fields: Fields = {}) {
 
 async function flush(): Promise<void> {
   if (!AXIOM_TOKEN || queue.length === 0) return
+  // Snapshot and clear immediately so concurrent requests don't share events
   const events = queue.splice(0)
   try {
     await fetch(`${AXIOM_URL}/v1/ingest/${AXIOM_DATASET}`, {
