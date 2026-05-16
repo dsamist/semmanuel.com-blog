@@ -1,0 +1,21 @@
+import Link from "next/link";
+
+export default function SubscribeConfirmed() {
+  return (
+    <div className="min-h-[70vh] flex items-center justify-center px-6">
+      <div className="text-center max-w-md">
+        <p className="font-mono text-sm text-cyan-400 mb-3">{"// subscribed"}</p>
+        <h1 className="text-2xl font-bold text-slate-100 mb-3">You're in!</h1>
+        <p className="text-slate-400 mb-8 text-sm leading-relaxed">
+          Your subscription is confirmed. You'll get an email whenever a new post is published.
+        </p>
+        <Link
+          href="/"
+          className="text-sm text-cyan-400 hover:text-cyan-300 border border-cyan-500/30 px-5 py-2.5 rounded-lg transition-colors"
+        >
+          Back to Home
+        </Link>
+      </div>
+    </div>
+  );
+}

@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logger, getRequestContext } from "@/lib/logger";
+import NewsletterForm from "@/app/components/NewsletterForm";
 
 export default async function Home() {
   if (!process.env.DATABASE_URL || process.env.DATABASE_URL === "prisma+postgres://accelerate.prisma-data.net/?api_key=API_KEY") {
@@ -63,6 +64,16 @@ export default async function Home() {
         <Link href="/posts" className="text-sm text-slate-400 hover:text-cyan-400 transition-colors border border-slate-700 hover:border-cyan-500/40 px-5 py-2 rounded-lg">
           View all posts →
         </Link>
+      </div>
+
+      {/* Newsletter */}
+      <div className="mt-16 rounded-xl border border-slate-700 bg-slate-800/50 px-8 py-10">
+        <p className="font-mono text-xs text-cyan-400 mb-3">{"// newsletter"}</p>
+        <h2 className="text-xl font-bold text-slate-100 mb-2">Stay in the loop</h2>
+        <p className="text-slate-400 text-sm mb-6 max-w-md">
+          Get an email when a new post is published. No spam, unsubscribe anytime.
+        </p>
+        <NewsletterForm />
       </div>
 
       {/* Submit CTA */}

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { BrevoClient } from "@getbrevo/brevo";
 import { logger, formatError, getRequestContext } from "@/lib/logger";
+import { sendNewsletterNotifications } from "@/lib/newsletter";
 
 export async function login(formData: FormData) {
   const key = formData.get("key") as string;
@@ -43,7 +44,7 @@ export async function approvePost(postId: number) {
     post = await prisma.post.update({
       where: { id: postId },
       data: { published: true, rejectionReason: null },
-      select: { title: true, author: { select: { email: true, name: true } } },
+      select: { title: true, content: true, author: { select: { email: true, name: true } } },
     });
     logger.info("post.approved", {
       postId,
@@ -92,6 +93,18 @@ export async function approvePost(postId: number) {
     } catch (err) {
       logger.error("email.approval.failed", { postId, to: submitterEmail, ...formatError(err) });
     }
+  }
+
+  // Notify newsletter subscribers
+  try {
+    const subscribers = await prisma.subscriber.findMany({
+      where: { confirmed: true },
+      select: { email: true, token: true },
+    });
+    await sendNewsletterNotifications(subscribers, { id: postId, title: post.title, content: post.content ?? null });
+    logger.info("newsletter.notifications_sent", { postId, subscriberCount: subscribers.length });
+  } catch (err) {
+    logger.error("newsletter.notifications_failed", { postId, ...formatError(err) });
   }
 
   await logger.flush();
