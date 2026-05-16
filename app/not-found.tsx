@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default async function NotFound() {
   const ctx = await getRequestContext();
-  if (!isMonitoringBot(ctx.userAgent as string ?? "")) {
+  if (!isMonitoringBot((ctx.userAgent as string | undefined) ?? "")) {
     logger.warn("page.not_found", { ...ctx });
     await logger.flush();
   }

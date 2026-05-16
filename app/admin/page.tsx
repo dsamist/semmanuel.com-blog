@@ -7,7 +7,6 @@ import { logger, getRequestContext } from "@/lib/logger";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github-dark.css";
 
 export default async function AdminPage() {
   const cookieStore = await cookies();
@@ -114,11 +113,11 @@ export default async function AdminPage() {
                       li: ({ children }) => <li className="text-slate-300">{children}</li>,
                       strong: ({ children }) => <strong className="font-semibold text-slate-100">{children}</strong>,
                       blockquote: ({ children }) => <blockquote className="border-l-4 border-cyan-500/50 pl-4 my-4 text-slate-400 italic">{children}</blockquote>,
-                      code: ({ className, children, ...props }) => {
+                      code: ({ className, children }) => {
                         const isBlock = className?.includes("language-");
                         return isBlock
-                          ? <code className={className} {...props}>{children}</code>
-                          : <code className="px-1.5 py-0.5 bg-slate-900 border border-slate-600 rounded text-cyan-300 text-xs font-mono" {...props}>{children}</code>;
+                          ? <code className={className}>{children}</code>
+                          : <code className="px-1.5 py-0.5 bg-slate-900 border border-slate-600 rounded text-cyan-300 text-xs font-mono">{children}</code>;
                       },
                       pre: ({ children }) => <pre className="bg-slate-900 border border-slate-700 rounded-lg p-4 overflow-x-auto mb-4 text-xs">{children}</pre>,
                       hr: () => <hr className="border-slate-700 my-6" />,

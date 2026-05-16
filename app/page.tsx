@@ -66,18 +66,8 @@ export default async function Home() {
         </Link>
       </div>
 
-      {/* Newsletter */}
-      <div className="mt-16 rounded-xl border border-slate-700 bg-slate-800/50 px-8 py-10">
-        <p className="font-mono text-xs text-cyan-400 mb-3">{"// newsletter"}</p>
-        <h2 className="text-xl font-bold text-slate-100 mb-2">Stay in the loop</h2>
-        <p className="text-slate-400 text-sm mb-6 max-w-md">
-          Get an email when a new post is published. No spam, unsubscribe anytime.
-        </p>
-        <NewsletterForm />
-      </div>
-
       {/* Submit CTA */}
-      <div className="mt-20 rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-8 py-10 text-center">
+      <div className="mt-16 rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-8 py-10 text-center">
         <p className="font-mono text-xs text-cyan-400 mb-3">{'// contribute'}</p>
         <h2 className="text-2xl font-bold text-slate-100 mb-3">Have something to share?</h2>
         <p className="text-slate-400 max-w-md mx-auto mb-6 text-sm leading-relaxed">
@@ -89,6 +79,16 @@ export default async function Home() {
         >
           Write a Post →
         </Link>
+      </div>
+
+      {/* Newsletter */}
+      <div className="mt-8 rounded-xl border border-slate-700 bg-slate-800/50 px-8 py-10">
+        <p className="font-mono text-xs text-cyan-400 mb-3">{"// newsletter"}</p>
+        <h2 className="text-xl font-bold text-slate-100 mb-2">Stay in the loop</h2>
+        <p className="text-slate-400 text-sm mb-6 max-w-md">
+          Get an email when a new post is published. No spam, unsubscribe anytime.
+        </p>
+        <NewsletterForm />
       </div>
     </div>
   );
