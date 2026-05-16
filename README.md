@@ -5,7 +5,7 @@
 
 A self-hosted blog platform built with Next.js 15 and Prisma Postgres. Anyone can submit a post — no account needed. An admin reviews submissions and approves or rejects them. Contributors are notified by email when their post is published or needs changes.
 
-Live at [semmanuel.com](https://semmanuel.com)
+Live at [blog.semmanuel.com](https://blog.semmanuel.com)
 
 ---
 
