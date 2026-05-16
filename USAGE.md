@@ -1,114 +1,199 @@
-# Usage
+# Usage Guide
 
-Follow these steps to quickly set up the project and start using Prisma ORM with Next.js.
+Step-by-step instructions to set up, run, and deploy the blog locally and on Netlify.
 
-## 1. Create a Prisma Postgres instance
+---
 
-Create a Prisma Postgres database instance using [Prisma Data Platform](https://console.prisma.io):
+## Prerequisites
 
-1. Navigate to [Prisma Data Platform](https://console.prisma.io).
-2. Click **New project** to create a new project.
-3. Enter a name for your project in the **Name** field.
-4. Inside the **Prisma Postgres** section, click **Get started**.
-5. Choose a region close to your location from the **Region** dropdown.
-6. Click **Create project** to set up your database. This redirects you to the database setup page.
-7. In the **Set up database access** section, copy the `DATABASE_URL`. You will use this in the next steps.
+- Node.js 18+
+- A [Prisma Data Platform](https://console.prisma.io) account (free tier available)
+- A [Brevo](https://www.brevo.com) account for email notifications *(optional)*
+- A [Netlify](https://app.netlify.com) account for deployment *(optional)*
 
-## 2. Setup your `.env` file
+---
 
-You now need to configure your database connection via an environment variable.
-
-First, create an `.env` file:
+## 1. Clone and install
 
 ```bash
-touch .env
+git clone https://github.com/your-username/semmanuel.com-blog.git
+cd semmanuel.com-blog
+npm install
 ```
 
-Then update the `.env` file by replacing the existing `DATABASE_URL` value with the one you previously copied. It will look similar to this:
+---
+
+## 2. Provision a Prisma Postgres database
+
+1. Go to [console.prisma.io](https://console.prisma.io) and click **New project**.
+2. Give your project a name, then click **Get started** under **Prisma Postgres**.
+3. Choose a region close to you and click **Create project**.
+4. From the **Set up database access** section, copy the `DATABASE_URL`. It looks like:
+
+```
+prisma+postgres://accelerate.prisma-data.net/?api_key=YOUR_API_KEY
+```
+
+---
+
+## 3. Configure environment variables
+
+Create a `.env` file at the project root:
 
 ```bash
-DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=PRISMA_POSTGRES_API_KEY"
+cp .env.example .env   # if an example exists, otherwise create it manually
 ```
 
-## 3. Migrate the database
+Fill in the values:
 
-Run the following commands to set up your database and Prisma schema:
+```bash
+# Prisma Postgres connection string (from step 2)
+DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=YOUR_API_KEY"
+
+# Protects the /admin dashboard — choose any strong secret string
+ADMIN_KEY="your-secret-admin-key"
+
+# Brevo email notifications (optional — skip if you don't need emails)
+BREVO_API_KEY="your-brevo-api-key"
+BREVO_SENDER_EMAIL="you@example.com"
+
+# Base URL used in notification emails (defaults to https://blog.semmanuel.com)
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+```
+
+> **Note:** Never commit your `.env` file. It is already listed in `.gitignore`.
+
+---
+
+## 4. Run database migrations
+
+Apply the Prisma schema to your database:
 
 ```bash
 npx prisma migrate dev --name init
 ```
 
 <details>
-
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
+<summary>Using yarn, pnpm, or bun</summary>
 
 ```bash
-# Using yarn
 yarn prisma migrate dev --name init
-
-# Using pnpm
 pnpm prisma migrate dev --name init
-
-# Using bun
 bun prisma migrate dev --name init
 ```
 
 </details>
 
-## 4. Seed the database
+---
 
-Add initial data to your database:
+## 5. Seed the database (optional)
+
+Populate the database with sample users and blog posts:
 
 ```bash
 npx prisma db seed
 ```
 
 <details>
-
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
+<summary>Using yarn, pnpm, or bun</summary>
 
 ```bash
-# Using yarn
 yarn prisma db seed
-
-# Using pnpm
 pnpm prisma db seed
-
-# Using bun
 bun prisma db seed
 ```
 
 </details>
 
-## 5. Run the app
+---
 
-Start the development server:
+## 6. Start the development server
 
 ```bash
 npm run dev
 ```
 
 <details>
-
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
+<summary>Using yarn, pnpm, or bun</summary>
 
 ```bash
-# Using yarn
 yarn dev
-
-# Using pnpm
 pnpm run dev
-
-# Using bun
 bun run dev
 ```
 
 </details>
 
-Once the server is running, visit `http://localhost:3000` to start using the app.
+Open [http://localhost:3000](http://localhost:3000) to view the blog.
 
-## 6. Deploy to Netlify
+---
 
-For the deployment on Netlify, you can use the [Prisma Postgres extension](https://www.netlify.com/integrations/prisma) for Netlify.
+## 7. Access the admin dashboard
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/nikolasburk/plain-nextjs-netlify-demo)
+The admin dashboard is protected by your `ADMIN_KEY`. Navigate to:
+
+```
+http://localhost:3000/admin?key=YOUR_ADMIN_KEY
+```
+
+From the dashboard you can:
+- **Approve** submitted posts (triggers a notification email to the contributor)
+- **Reject** posts with feedback (contributor is also notified)
+- View all pending submissions
+
+---
+
+## 8. Set up email notifications (Brevo)
+
+Email notifications are sent when posts are approved or rejected.
+
+1. Create a free account at [brevo.com](https://www.brevo.com).
+2. Go to **SMTP & API → API Keys** and generate a key.
+3. Add a verified sender email under **Senders & IP**.
+4. Set `BREVO_API_KEY` and `BREVO_SENDER_EMAIL` in your `.env`.
+
+If these variables are not set, email sending is silently skipped — the rest of the app works normally.
+
+---
+
+## 9. Deploy to Netlify
+
+### Option A — Netlify CLI
+
+```bash
+npm install -g netlify-cli
+netlify login
+netlify init          # link to an existing or new site
+netlify env:set DATABASE_URL "your-database-url"
+netlify env:set ADMIN_KEY "your-admin-key"
+netlify env:set BREVO_API_KEY "your-brevo-key"
+netlify env:set BREVO_SENDER_EMAIL "you@example.com"
+netlify env:set NEXT_PUBLIC_SITE_URL "https://yourdomain.com"
+git push              # triggers auto-deploy
+```
+
+### Option B — Netlify dashboard
+
+1. Go to [app.netlify.com](https://app.netlify.com) → **Add new site → Import an existing project**.
+2. Connect your GitHub repo and select this repository.
+3. The build settings are pre-configured in `netlify.toml` — no changes needed.
+4. Under **Site settings → Environment variables**, add all variables from step 3.
+5. Click **Deploy site**.
+
+Netlify runs `npx prisma migrate deploy` automatically before each build, so your database schema stays in sync on every deploy.
+
+### Option C — Prisma Postgres Netlify extension
+
+For a tighter integration with automatic database provisioning, install the [Prisma Postgres extension](https://www.netlify.com/integrations/prisma) from the Netlify integrations marketplace.
+
+---
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `Cannot find module '@prisma/client'` | Run `npm install` then `npx prisma generate` |
+| Database connection error | Verify `DATABASE_URL` is correct and the Prisma Postgres instance is active |
+| Admin dashboard returns 403 | Check that `ADMIN_KEY` in your `.env` matches the `?key=` query param |
+| Emails not sending | Confirm `BREVO_API_KEY` is valid and `BREVO_SENDER_EMAIL` is a verified sender |
+| Build fails on Netlify | Ensure all required env vars are set in Netlify site settings |

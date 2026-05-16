@@ -6,8 +6,8 @@ async function main() {
   // Create 5 users
   await prisma.user.createMany({
     data: [
-      { email: 's.eneojo.emmanuel@gmail.com', name: 'dsamist' },
-      { email: 'samist.se@gmail.com', name: 'dsamist1' },
+      { email: 'author@example.com', name: 'dsamist' },
+      { email: 'contributor@example.com', name: 'dsamist1' },
       // { email: 'charlie@example.com', name: 'Charlie' },
       // { email: 'dsamist@example.com', name: 'dsamist' },
       // { email: 'dsamist@example.com', name: 'dsamist' },
