@@ -2,6 +2,7 @@
 import "./globals.css";
 import Header from "./Header";
 import WebVitals from "./WebVitals";
+import Script from "next/script";
 
 export const metadata = {
   title: "Samuel Emmanuel | Cloud & DevOps Blog",
@@ -21,6 +22,14 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <WebVitals />
         </div>
+        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+          <Script
+            defer
+            src="https://cloud.umami.is/script.js"
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );
