@@ -35,9 +35,8 @@ export async function sendNewsletterNotifications(
   const brevo = new BrevoClient({ apiKey: process.env.BREVO_API_KEY });
   const postUrl = `${SITE_URL}/posts/${post.id}`;
   const excerpt = post.content
-    ?.replace(/[#*`_>\[\]]/g, "")
-    .trim()
-    .slice(0, 220) + "…" ?? "";
+    ? post.content.replace(/[#*`_>\[\]]/g, "").trim().slice(0, 220) + "…"
+    : "";
 
   await Promise.allSettled(
     subscribers.map(({ email, token }) => {
