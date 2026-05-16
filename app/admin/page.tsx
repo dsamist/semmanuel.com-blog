@@ -4,6 +4,10 @@ import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { login, logout, approvePost, rejectPost } from "./actions";
 import { logger, getRequestContext } from "@/lib/logger";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 
 export default async function AdminPage() {
   const cookieStore = await cookies();
@@ -96,9 +100,33 @@ export default async function AdminPage() {
                 {post.author?.name && <span className="ml-2">· by {post.author.name}</span>}
               </p>
               {post.content && (
-                <p className="text-slate-400 text-sm leading-relaxed line-clamp-4 mb-5 border-t border-slate-700 pt-4">
-                  {post.content}
-                </p>
+                <div className="max-h-[36rem] overflow-y-auto mb-5 border-t border-slate-700 pt-4 text-slate-300 text-sm leading-relaxed pr-2">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
+                    components={{
+                      p: ({ children }) => <p className="mb-4">{children}</p>,
+                      h1: ({ children }) => <h1 className="text-xl font-bold text-slate-100 mt-8 mb-3">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-lg font-bold text-slate-100 mt-6 mb-2">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-base font-semibold text-slate-100 mt-4 mb-1">{children}</h3>,
+                      ul: ({ children }) => <ul className="list-disc list-outside pl-5 mb-4 space-y-1">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal list-outside pl-5 mb-4 space-y-1">{children}</ol>,
+                      li: ({ children }) => <li className="text-slate-300">{children}</li>,
+                      strong: ({ children }) => <strong className="font-semibold text-slate-100">{children}</strong>,
+                      blockquote: ({ children }) => <blockquote className="border-l-4 border-cyan-500/50 pl-4 my-4 text-slate-400 italic">{children}</blockquote>,
+                      code: ({ className, children, ...props }) => {
+                        const isBlock = className?.includes("language-");
+                        return isBlock
+                          ? <code className={className} {...props}>{children}</code>
+                          : <code className="px-1.5 py-0.5 bg-slate-900 border border-slate-600 rounded text-cyan-300 text-xs font-mono" {...props}>{children}</code>;
+                      },
+                      pre: ({ children }) => <pre className="bg-slate-900 border border-slate-700 rounded-lg p-4 overflow-x-auto mb-4 text-xs">{children}</pre>,
+                      hr: () => <hr className="border-slate-700 my-6" />,
+                    }}
+                  >
+                    {post.content}
+                  </ReactMarkdown>
+                </div>
               )}
               <div className="flex flex-col gap-3">
                 <div className="flex gap-3">
