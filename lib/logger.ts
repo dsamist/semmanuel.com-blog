@@ -9,17 +9,27 @@ type Fields = Record<string, unknown>
 
 const queue: Record<string, unknown>[] = []
 
+const MONITORING_BOTS = ["uptimerobot", "pingdom", "statuscake", "site24x7", "freshping", "hetrixtools", "googlebot", "bingbot"]
+
+export function isMonitoringBot(userAgent: string): boolean {
+  const ua = userAgent.toLowerCase()
+  return MONITORING_BOTS.some((bot) => ua.includes(bot))
+}
+
 export async function getRequestContext(): Promise<Fields> {
   try {
     const h = await headers()
     const ip = h.get("x-client-ip") ?? h.get("x-nf-client-connection-ip") ?? h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
     const country = h.get("x-client-country") ?? h.get("x-country") ?? undefined
     const city = h.get("x-client-city") ?? undefined
-    const pathname = h.get("x-pathname") ?? undefined
+    // x-invoke-path is set by Next.js with the actual failing path in not-found context
+    const pathname = h.get("x-invoke-path") ?? h.get("x-pathname") ?? undefined
+    const userAgent = h.get("user-agent") ?? undefined
     const result: Fields = { ip }
     if (country) result.country = country
     if (city) result.city = city
     if (pathname) result.pathname = pathname
+    if (userAgent) result.userAgent = userAgent
     return result
   } catch {
     return {}

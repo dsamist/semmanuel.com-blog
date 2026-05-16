@@ -1,12 +1,14 @@
 export const dynamic = "force-dynamic";
 
-import { logger, getRequestContext } from "@/lib/logger";
+import { logger, getRequestContext, isMonitoringBot } from "@/lib/logger";
 import Link from "next/link";
 
 export default async function NotFound() {
   const ctx = await getRequestContext();
-  logger.warn("page.not_found", { ...ctx });
-  await logger.flush();
+  if (!isMonitoringBot(ctx.userAgent as string ?? "")) {
+    logger.warn("page.not_found", { ...ctx });
+    await logger.flush();
+  }
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-6">
